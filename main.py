@@ -33,7 +33,6 @@ def generate_crop_command(input_file, output_file, x, y, width, height, start_ti
 input_file = '/Users/steph/PycharmProjects/videoCropTest/inputvid.mp4'
 output_file_prefix = 'output_clip'
 final_output_file = 'final_output.mp4'
-final_cropped_output_file = 'final_output_cropped.mp4'
 
 # Extract relevant segments and crop parameters
 commands = []
@@ -82,24 +81,7 @@ concat_command = [
 
 subprocess.run(concat_command)
 
-# Crop the final concatenated video to mobile phone ratio (9:16)
-final_crop_command = [
-    'ffmpeg',
-    '-i', final_output_file,
-    '-vf', 'scale=1080:1920,crop=1080:1920',
-    '-c:v', 'libx264',
-    '-c:a', 'aac',
-    '-b:v', '2M',
-    '-b:a', '128k',
-    '-pix_fmt', 'yuv420p',
-    '-movflags', '+faststart',
-    final_cropped_output_file
-]
-
-subprocess.run(final_crop_command)
-
 # Clean up individual clip files and the text file
 for clip_file in clip_files:
     os.remove(clip_file)
 os.remove('clips_to_concat.txt')
-os.remove(final_output_file)
