@@ -17,7 +17,7 @@ def generate_crop_command(input_file, output_file, x, y, width, height, start_ti
     return [
         'ffmpeg',
         '-i', input_file,
-        '-vf', f'crop={crop_width}:{crop_height}:{x}:{y},scale=1080:1920',  # Crop and scale to iPhone screen dimensions
+        '-vf', f'crop={crop_width}:{crop_height}:{x}:{y}',  # Crop to fit within original dimensions
         '-ss', start_time,
         '-t', duration,
         '-c:v', 'libx264',  # Use H.264 codec for video
@@ -33,6 +33,7 @@ def generate_crop_command(input_file, output_file, x, y, width, height, start_ti
 input_file = '/Users/steph/PycharmProjects/videoCropTest/inputvid.mp4'
 output_file_prefix = 'output_clip'
 final_output_file = 'final_output.mp4'
+final_cropped_output_file = 'final_output_cropped.mp4'
 
 # Extract relevant segments and crop parameters
 commands = []
@@ -81,7 +82,24 @@ concat_command = [
 
 subprocess.run(concat_command)
 
+# Crop and scale the final concatenated video to mobile phone ratio (9:16) without stretching
+final_crop_command = [
+    'ffmpeg',
+    '-i', final_output_file,
+    '-vf', 'crop=ih*9/16:ih,scale=1080:1920',  # Crop to 9:16 ratio and scale
+    '-c:v', 'libx264',
+    '-c:a', 'aac',
+    '-b:v', '2M',
+    '-b:a', '128k',
+    '-pix_fmt', 'yuv420p',
+    '-movflags', '+faststart',
+    final_cropped_output_file
+]
+
+subprocess.run(final_crop_command)
+
 # Clean up individual clip files and the text file
 for clip_file in clip_files:
     os.remove(clip_file)
 os.remove('clips_to_concat.txt')
+os.remove(final_output_file)
