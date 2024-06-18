@@ -2,11 +2,11 @@ import json
 import subprocess
 import os
 
-# Load insights JSON data
-with open('/Users/steph/PycharmProjects/videoCropTest/insights.json') as f:
+#load insights json data
+with open('/Users/steph/PycharmProjects/videoCropTest/insights2.json') as f:
     insights = json.load(f)
 
-# Function to generate FFMPEG crop command
+#generate FFMPEG crop command
 def generate_crop_command(input_file, output_file, x, y, width, height, start_time, duration):
     # Calculate crop size to fit within the input video dimensions
     input_width = 640
@@ -29,13 +29,13 @@ def generate_crop_command(input_file, output_file, x, y, width, height, start_ti
         output_file
     ]
 
-# Define input and output files
-input_file = '/Users/steph/PycharmProjects/videoCropTest/inputvid.mp4'
+#define input and output
+input_file = '/Users/steph/PycharmProjects/videoCropTest/inputvid2.mp4'
 output_file_prefix = 'output_clip'
 final_output_file = 'final_output.mp4'
 final_cropped_output_file = 'final_output_cropped.mp4'
 
-# Extract relevant segments and crop parameters
+#extract relevant segments and crop parameters
 commands = []
 segment_index = 1
 clip_files = []
@@ -61,16 +61,16 @@ for video in insights['videos']:
             segment_index += 1
             commands.append(generate_crop_command(input_file, output_file, x, y, width, height, start_time, duration))
 
-# Execute FFMPEG commands to create individual clips
+#execute FFMPEG commands to create individual clips
 for command in commands:
     subprocess.run(command)
 
-# Create a text file with the list of clips to concatenate
+#create a text file with the list of clips to concatenate
 with open('clips_to_concat.txt', 'w') as f:
     for clip_file in clip_files:
         f.write(f"file '{clip_file}'\n")
 
-# Concatenate the clips into a single output video
+#concatenate the clips into a single output video
 concat_command = [
     'ffmpeg',
     '-f', 'concat',
@@ -82,7 +82,7 @@ concat_command = [
 
 subprocess.run(concat_command)
 
-# Crop and scale the final concatenated video to mobile phone ratio (9:16) without stretching
+#crop and scale the final concatenated video to mobile phone ratio (9:16) without stretching
 final_crop_command = [
     'ffmpeg',
     '-i', final_output_file,
@@ -98,7 +98,7 @@ final_crop_command = [
 
 subprocess.run(final_crop_command)
 
-# Clean up individual clip files and the text file
+#clean up individual clip files and the text file
 for clip_file in clip_files:
     os.remove(clip_file)
 os.remove('clips_to_concat.txt')
